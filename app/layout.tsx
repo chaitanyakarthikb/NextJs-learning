@@ -3,6 +3,12 @@ import '../assets/styles/globals.css';
 type MainComponentProps = {
     children:ReactNode,
 }
+
+export const metadata = {
+    title:"Property Pulse",
+    keywords:"Real Estate, Property, Rental",
+    description:"Find the perfect Rental Property"
+}
 const MainComponent = ({children}:MainComponentProps) => {
   return (
     <html>
