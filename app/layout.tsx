@@ -1,6 +1,7 @@
 import React, { ReactNode } from 'react';
 import '../assets/styles/globals.css';
 import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 type MainComponentProps = {
     children:ReactNode,
 }
@@ -18,6 +19,7 @@ const MainComponent = ({children}:MainComponentProps) => {
             <main>
                 {children}
             </main>
+            <Footer/>
         </body>
     </html>
   )
