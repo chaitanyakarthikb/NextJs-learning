@@ -1,5 +1,6 @@
 import Hero from '@/components/Hero';
 import InfoBoxes from '@/components/InfoBoxes';
+import RecentProperties from '@/components/RecentProperties';
 import React from 'react'
 
 const page = () => {
@@ -7,6 +8,7 @@ const page = () => {
     <div>
       <Hero />
       <InfoBoxes />
+      <RecentProperties/>
     </div>
   );
 }
