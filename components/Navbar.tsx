@@ -1,17 +1,33 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import logo from '../assets/images/logo-white.png'
 import DefaultProfile from '../assets/images/profile.png'
 import Link from 'next/link'
 import { FaGoogle } from "react-icons/fa";
 import { usePathname } from 'next/navigation'
+import { getProviders, useSession, ClientSafeProvider, signIn, signOut } from 'next-auth/react'
+
 
 const Navbar = () => {
+  const {data:session} = useSession();
+  console.log("===============data=============",session);
+  const imageFromTheSessionWithAFallbackOfDefault = session?.user?.image || DefaultProfile;
   const [isMobileMenuOpened,setIsMobileMenuOpened] = useState(false);
   const [isProfileMenuOpened,setIsProfileMenuOpened] = useState(false);
-  const [isLoggedIn,setIsLoggedIn] = useState(false);
+  const [providers,setProviders] = useState<Record<string, ClientSafeProvider> | null>(null);
+  // const [isLoggedIn,setIsLoggedIn] = useState(true);
   const location = usePathname();
+
+  useEffect(()=>{
+    const setMyProviders = async()=>{
+      const res = await getProviders();
+      setProviders(res);
+    }
+
+    setMyProviders();
+
+  },[]);
   return (
     <nav className="bg-blue-700 border-b border-blue-500">
       <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
@@ -73,7 +89,7 @@ const Navbar = () => {
                 >
                   Properties
                 </Link>
-                {isLoggedIn && (
+                {session && (
                   <Link
                     href="/properties/add"
                     className={`text-white ${
@@ -88,19 +104,25 @@ const Navbar = () => {
           </div>
 
           {/* <!-- Right Side Menu (Logged Out) --> */}
-          {!isLoggedIn && (
+          {!session && (
             <div className="hidden md:block md:ml-6">
               <div className="flex items-center">
-                <button className="flex items-center text-white bg-gray-700 hover:bg-gray-900 hover:text-white rounded-md px-3 py-2 cursor-pointer">
+                {providers && Object.values(providers).map((provider,index)=>{
+                  return (
+                    <button onClick={()=>signIn(provider.id)} key={index} className="flex items-center text-white bg-gray-700 hover:bg-gray-900 hover:text-white rounded-md px-3 py-2 cursor-pointer">
                   <FaGoogle className="mr-2 text-white text-xl" />
                   <span>Login or Register</span>
                 </button>
+
+                  )
+                })}
+                
               </div>
             </div>
           )}
 
           {/* <!-- Right Side Menu (Logged In) --> */}
-          {isLoggedIn && (
+          {session && (
             <div className="absolute inset-y-0 right-0 flex items-center pr-2 md:static md:inset-auto md:ml-6 md:pr-0">
               <Link href="/messages" className="relative group">
                 <button
@@ -143,10 +165,12 @@ const Navbar = () => {
                     <span className="absolute -inset-1.5"></span>
                     <span className="sr-only">Open user menu</span>
                     <Image
-                      src={DefaultProfile}
+                      src={imageFromTheSessionWithAFallbackOfDefault}
                       alt="profilePic"
                       className="h-[35px] w-[35px] md:h-[40px] md:w-[40px]"
                       onClick={() => setIsProfileMenuOpened((prev) => !prev)}
+                      width={40}
+                      height={40}
                     />
                   </button>
                 </div>
@@ -185,6 +209,10 @@ const Navbar = () => {
                       role="menuitem"
                       //   tabindex="-1"
                       id="user-menu-item-2"
+                      onClick={() => {
+                        setIsProfileMenuOpened(false);
+                        signOut();
+                      }}
                     >
                       Sign Out
                     </Link>
@@ -216,7 +244,7 @@ const Navbar = () => {
             >
               Properties
             </Link>
-            {isLoggedIn && (
+            {session && (
               <Link
                 href="/properties/add"
                 className={`${
@@ -227,7 +255,7 @@ const Navbar = () => {
               </Link>
             )}
 
-            {!isLoggedIn && (
+            {!session && (
               <button className="flex items-center text-white bg-gray-700 hover:bg-gray-900 hover:text-white rounded-md px-3 py-2 my-4">
                 <i className="fa-brands fa-google mr-2"></i>
                 <span>Login or Register</span>
